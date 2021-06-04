@@ -26,14 +26,8 @@ public class Maze {
     }
 
     public static void main(String[] args) {
-        MazeElement[][] maze = null;
         System.out.println("Creating a cool map may require some time, please wait");
-        try {
-            maze = getMaze(5, 4);
-        }catch (Exception e){
-            //Impossible exception
-            System.err.println(e.getMessage());
-        }
+        MazeElement[][] maze = getMaze(5, 4);
         if(maze == null){
             return;
         }
@@ -73,13 +67,6 @@ public class Maze {
                         --playerCounter;
                     } else if (maze[i][j]==MazeElement.Exit && exitCounter > 1) {
                         --exitCounter;
-                    } else if(maze[i][j]==MazeElement.Exit && (
-                            (i-1>=0 && maze[i-1][j]==MazeElement.Player) ||
-                            (i+1<maze.length && maze[i+1][j]==MazeElement.Player) ||
-                            (j-1>=0 && maze[i][j-1]==MazeElement.Player) ||
-                            (j+1<maze[0].length && maze[i][j+1]==MazeElement.Player))){
-                        maze[i][j] = MazeElement.None;
-                        --exitCounter;
                     }else if(maze[i][j]==MazeElement.Wall && wallCounter>=maze.length*maze[0].length/2){
                         --wallCounter;
                     } else{
@@ -102,7 +89,8 @@ public class Maze {
 
     public static boolean isSolvableMaze(MazeElement[][] maze){
         try{
-            return !solveMaze(maze).equals("");
+            String solve = solveMaze(maze);
+            return solve.length()>1;
         }catch (Exception e){
             return false;
         }
@@ -157,7 +145,7 @@ public class Maze {
             p.x -=1;
             return mazeTraceback(visited, p) + 's';
         }
-        if(p.x-1<=lowerBound && visited[p.x][p.y]-1==visited[p.x+1][p.y]){
+        if(p.x+1<=lowerBound && visited[p.x][p.y]-1==visited[p.x+1][p.y]){
             p.x +=1;
             return mazeTraceback(visited, p) + 'w';
         }
