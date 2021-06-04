@@ -9,8 +9,8 @@ public class Maze {
         Player ('P'),
         None ('-');
 
-        char c;
-
+        private char c;
+        private static Random generator = new Random();
         MazeElement(char c){
             this.c = c;
         }
@@ -21,16 +21,21 @@ public class Maze {
         }
         public static MazeElement getRandom(){
             MazeElement[] arr = values();
-            return arr[new Random().nextInt(arr.length)];
+            int n = generator.nextInt(100);
+            if(n>60){
+                return Wall;
+            }else if(n>20){
+                return None;
+            }else if(n>10){
+                return Player;
+            }
+            return Exit;
         }
     }
 
     public static void main(String[] args) {
         System.out.println("Creating a cool map may require some time, please wait");
         MazeElement[][] maze = getMaze(5, 4);
-        if(maze == null){
-            return;
-        }
         boolean mazeCompleted = false;
         while (!mazeCompleted) {
             try {
@@ -60,21 +65,25 @@ public class Maze {
                 j = 0;
                 while (j < col) {
                     maze[i][j] = MazeElement.getRandom();
+                    printMaze(maze);
                     exitCounter += maze[i][j] == MazeElement.Exit ? 1 : 0;
                     playerCounter += maze[i][j] == MazeElement.Player ? 1 : 0;
                     wallCounter += maze[i][j] == MazeElement.Wall ? 1 : 0;
+                    if(maze[i][j]==MazeElement.Wall && wallCounter>=(maze.length*maze[0].length/2)){
+                        --wallCounter;
+                        maze[i][j] = MazeElement.None;
+                    }
                     if (maze[i][j]==MazeElement.Player && playerCounter > 1) {
                         --playerCounter;
                     } else if (maze[i][j]==MazeElement.Exit && exitCounter > 1) {
                         --exitCounter;
-                    }else if(maze[i][j]==MazeElement.Wall && wallCounter>=maze.length*maze[0].length/2){
-                        --wallCounter;
                     } else{
                         ++j;
                     }
                 }
                 ++i;
             }
+            System.out.println("---------------------------Fine");
         }while(playerCounter<=0 || exitCounter<=0 ||!isSolvableMaze(getClone(maze)));
         return maze;
     }
