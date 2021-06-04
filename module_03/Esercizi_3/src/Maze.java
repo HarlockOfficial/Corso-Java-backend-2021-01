@@ -3,14 +3,23 @@ import java.util.*;
 public class Maze {
     private static final Scanner sc = new Scanner(System.in);
 
+    public static class Pair{
+        int x, y;
+        Pair(int x, int y){
+            this.x = x;
+            this.y = y;
+        }
+    }
+
     public enum MazeElement{
         Wall ('W'),
         Exit ('E'),
         Player ('P'),
-        None ('-');
+        None ('-'),
+        Monster ('M');
 
-        private char c;
-        private static Random generator = new Random();
+        private final char c;
+        private static final Random generator = new Random();
         MazeElement(char c){
             this.c = c;
         }
@@ -20,35 +29,43 @@ public class Maze {
             return c+"";
         }
         public static MazeElement getRandom(){
-            MazeElement[] arr = values();
             int n = generator.nextInt(100);
-            if(n>60){
+            if(n>70){
                 return Wall;
-            }else if(n>20){
+            }else if(n>30){
                 return None;
-            }else if(n>10){
+            }else if(n>20){
                 return Player;
+            }else if(n>10){
+                return Monster;
             }
             return Exit;
         }
     }
 
     public static void main(String[] args) {
+        System.out.print("Insert row count > ");
+        int row = Integer.parseInt(sc.nextLine());
+        System.out.print("Insert column count > ");
+        int col = Integer.parseInt(sc.nextLine());
         System.out.println("Creating a cool map may require some time, please wait");
-        MazeElement[][] maze = getMaze(5, 4);
-        boolean mazeCompleted = false;
-        while (!mazeCompleted) {
+        MazeElement[][] maze = getMaze(row, col);
+        boolean mazeCompleted1 = false;
+        boolean mazeCompleted2 = false;
+        while (!mazeCompleted1 && !mazeCompleted2) {
             try {
                 printMaze(maze);
                 char movement = getMovement();
-                mazeCompleted = move(maze, movement);
+                mazeCompleted1 = move(maze, movement, getPlayerPosition(maze), MazeElement.Exit);
+                mazeCompleted2 = moveMonster(maze);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
                 System.err.println(Arrays.toString(e.getStackTrace()));
             }
         }
         printMaze(maze);
-        System.out.println("You've completed the game");
+        if(mazeCompleted1)
+            System.out.println("You've completed the game");
     }
 
     private static char getMovement(){
@@ -57,12 +74,13 @@ public class Maze {
     }
 
     public static MazeElement[][] getMaze(int row, int col) {
-        int exitCounter, playerCounter, wallCounter, i, j;
+        int exitCounter, playerCounter, wallCounter, monsterCounter, i, j;
         MazeElement[][] maze = new MazeElement[row][col];
         do {
             exitCounter = 0;
             playerCounter = 0;
             wallCounter = 0;
+            monsterCounter = 0;
             i = 0;
             while (i < row) {
                 j = 0;
@@ -71,19 +89,22 @@ public class Maze {
                     exitCounter += maze[i][j] == MazeElement.Exit ? 1 : 0;
                     playerCounter += maze[i][j] == MazeElement.Player ? 1 : 0;
                     wallCounter += maze[i][j] == MazeElement.Wall ? 1 : 0;
+                    monsterCounter += maze[i][j] == MazeElement.Monster ? 1 : 0;
                     if(maze[i][j]==MazeElement.Wall && wallCounter>=(maze.length*maze[0].length/2)){
-                        wallCounter--;
+                        --wallCounter;
                         maze[i][j] = MazeElement.None;
                     }
                     if (maze[i][j]==MazeElement.Player && playerCounter > 1) {
-                        playerCounter--;
-                    } else if (maze[i][j]==MazeElement.Exit && exitCounter > 1) {
-                        exitCounter--;
+                        --playerCounter;
+                    } else if(maze[i][j]==MazeElement.Monster && monsterCounter>wallCounter/2){
+                        --monsterCounter;
+                    }else if (maze[i][j]==MazeElement.Exit && exitCounter > 1) {
+                        --exitCounter;
                     } else{
-                        j++;
+                        ++j;
                     }
                 }
-                i++;
+                ++i;
             }
         }while(playerCounter<=0 || exitCounter<=0 ||!isSolvableMaze(getClone(maze)));
         return maze;
@@ -99,22 +120,22 @@ public class Maze {
 
     public static boolean isSolvableMaze(MazeElement[][] maze){
         try{
-            String solve = solveMaze(maze);
-            return solve.length()>1;
+            String solve = solveMaze(maze, getPlayerPosition(maze), MazeElement.Exit);
+            boolean solvable2 = false;
+            List<Pair> monsterPos = getMonsterPosition(maze);
+            if(monsterPos!=null) {
+                for (Pair p :monsterPos) {
+                    solvable2 |= solveMaze(maze, p, MazeElement.Player).length()>0;
+                }
+            }
+            return solve.length()>1 && solvable2;
         }catch (Exception e){
             return false;
         }
     }
 
-    public static class Pair{
-        int x, y;
-        Pair(int x, int y){
-            this.x = x;
-            this.y = y;
-        }
-    }
-
-    public static String solveMaze(MazeElement[][] maze) throws Exception{
+    public static String solveMaze(MazeElement[][] maze, Pair origPos, MazeElement exitCondition) {
+        Pair curPos = new Pair(origPos.x, origPos.y);
         Queue<Pair> queue = new ArrayDeque<>();
         int[][] visited = new int[maze.length][maze[0].length];
         for(int i = 0; i<visited.length; ++i){
@@ -122,7 +143,6 @@ public class Maze {
                 visited[i][j] = Integer.MAX_VALUE;
             }
         }
-        Pair curPos = getPlayerPosition(maze);
         visited[curPos.x][curPos.y] = 0;
         fillQueue(queue, maze, visited, curPos);
         Pair p = null;
@@ -131,11 +151,11 @@ public class Maze {
             p = queue.poll();
             if(p==null)
                 continue;
-            if(maze[p.x][p.y]==MazeElement.Exit){
+            if(maze[p.x][p.y]==exitCondition){
                 exited = true;
                 break;
             }
-            maze[p.x][p.y] = MazeElement.Player;
+            maze[p.x][p.y] = maze[curPos.x][curPos.y];
             curPos.x = p.x;
             curPos.y = p.y;
             fillQueue(queue, maze, visited, curPos);
@@ -194,9 +214,8 @@ public class Maze {
 
     }
 
-    private static boolean move(MazeElement[][] maze, char position) throws Exception{
+    private static boolean move(MazeElement[][] maze, char position, Pair currPlayerPos, MazeElement exitCondition) {
         boolean mazeCompleted = false;
-        Pair currPlayerPos = getPlayerPosition(maze);
         int x = currPlayerPos.x,
                 y = currPlayerPos.y,
                 upperBound = 0,
@@ -227,28 +246,63 @@ public class Maze {
             default:
                 break;
         }
-        if(maze[x][y]!=MazeElement.Wall) {
-            if(maze[x][y] == MazeElement.Exit){
+        if(maze[x][y]==MazeElement.None || maze[x][y] == exitCondition) {
+            if(maze[x][y] == exitCondition){
                 mazeCompleted = true;
             }
+            if(maze[x][y] != MazeElement.Exit){
+                maze[x][y] = maze[currPlayerPos.x][currPlayerPos.y];
+            }
             maze[currPlayerPos.x][currPlayerPos.y] = MazeElement.None;
-            maze[x][y] = MazeElement.Player;
         }
         return mazeCompleted;
     }
 
+    private static boolean moveMonster(MazeElement[][] maze) {
+        List<Pair> currMonsterPos = getMonsterPosition(maze);
+        if(currMonsterPos == null){
+            return false;
+        }
+        boolean solved = false;
+        for(Pair monster: currMonsterPos){
+            String pos = solveMaze(getClone(maze), monster, MazeElement.Player);
+            char position = pos.length()>0?pos.charAt(0):'q';
+            solved |= move(maze, position, monster, MazeElement.Player);
+        }
+        if(solved){
+            System.out.println("A monster killed you, game ends");
+        }
+        return solved;
+    }
+
+    public static List<Pair> getMonsterPosition(MazeElement[][] maze){
+        try {
+            return getPosition(maze, MazeElement.Monster);
+        }catch (Exception e){
+            return null;
+        }
+    }
+
     public static Pair getPlayerPosition(MazeElement[][] maze) throws Exception{
+        //there is only one player
+        return getPosition(maze, MazeElement.Player).get(0);
+    }
+
+    private static List<Pair> getPosition(MazeElement[][] maze, MazeElement object) throws Exception{
+        List<Pair> arr = new ArrayList<>();
         for(int i = 0; i<maze.length; ++i){
             for(int j = 0; j<maze[0].length; ++j){
-                if(maze[i][j]==MazeElement.Player){
-                    return new Pair(i,j);
+                if(maze[i][j]==object){
+                    arr.add(new Pair(i,j));
                 }
             }
+        }
+        if(arr.size()>0){
+            return arr;
         }
         //impossible
         throw new Exception("Player not Found");
     }
-
     public static void printMaze(MazeElement[][] maze){
         for(MazeElement[] arr: maze){
             System.out.println(Arrays.toString(arr));
@@ -256,6 +310,6 @@ public class Maze {
     }
     /*
      * possono esistere più di 1 uscita?
-     *   SI, anche mostri che ti seguono o portali
+     *   SI, anche portali
      */
 }
