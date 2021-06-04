@@ -57,33 +57,34 @@ public class Maze {
     }
 
     public static MazeElement[][] getMaze(int row, int col) {
-        int exitCounter = 0, playerCounter = 0, wallCounter = 0, i, j;
+        int exitCounter, playerCounter, wallCounter, i, j;
         MazeElement[][] maze = new MazeElement[row][col];
         do {
+            exitCounter = 0;
+            playerCounter = 0;
+            wallCounter = 0;
             i = 0;
             while (i < row) {
                 j = 0;
                 while (j < col) {
                     maze[i][j] = MazeElement.getRandom();
-                    printMaze(maze);
                     exitCounter += maze[i][j] == MazeElement.Exit ? 1 : 0;
                     playerCounter += maze[i][j] == MazeElement.Player ? 1 : 0;
                     wallCounter += maze[i][j] == MazeElement.Wall ? 1 : 0;
                     if(maze[i][j]==MazeElement.Wall && wallCounter>=(maze.length*maze[0].length/2)){
-                        --wallCounter;
+                        wallCounter--;
                         maze[i][j] = MazeElement.None;
                     }
                     if (maze[i][j]==MazeElement.Player && playerCounter > 1) {
-                        --playerCounter;
+                        playerCounter--;
                     } else if (maze[i][j]==MazeElement.Exit && exitCounter > 1) {
-                        --exitCounter;
+                        exitCounter--;
                     } else{
-                        ++j;
+                        j++;
                     }
                 }
-                ++i;
+                i++;
             }
-            System.out.println("---------------------------Fine");
         }while(playerCounter<=0 || exitCounter<=0 ||!isSolvableMaze(getClone(maze)));
         return maze;
     }
