@@ -31,6 +31,7 @@ public class DittaRiparazioni {
             return;
         Riparazione r = toDo.poll();
         r.assegnaTecnico(t);
+        dipendenti.get(dipendenti.indexOf(t)).setStatus(Status.ASSEGNATO);
         inCorso.add(r);
     }
     public boolean completeRepair(Tecnico t){
