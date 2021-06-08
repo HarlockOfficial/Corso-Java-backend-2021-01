@@ -20,6 +20,15 @@ public class Store {
     public boolean rimuoviProdotto(Prodotto p){
         return prodotti.remove(new Stock(p,0));
     }
+    public boolean rimuoviProdotto(Prodotto p, int quantity){
+        int index = prodotti.indexOf(new Stock(p, 0));
+        if(index>0 && quantity>=prodotti.get(index).getQuantity()){
+            return rimuoviProdotto(p);
+        }else if(index>0){
+            return prodotti.get(index).takeFromStock(quantity);
+        }
+        return false;
+    }
     public List<Stock> listaProdottiRimanenti(){
         return prodotti;
     }
