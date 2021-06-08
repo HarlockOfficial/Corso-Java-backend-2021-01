@@ -2,8 +2,6 @@ package Lampadina3;
 
 import Lampadina.Lampadina;
 
-import java.util.Random;
-
 public class Impianto {
     Lampadina[] l;
     public Impianto(int lampCount){

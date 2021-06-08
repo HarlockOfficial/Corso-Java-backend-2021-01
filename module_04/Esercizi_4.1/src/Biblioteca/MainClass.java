@@ -1,3 +1,7 @@
+package Biblioteca;
+
+import Biblioteca.Biblioteca;
+
 public class MainClass {
     public static void main(String[] args) {
         int[] values = new int[7];
