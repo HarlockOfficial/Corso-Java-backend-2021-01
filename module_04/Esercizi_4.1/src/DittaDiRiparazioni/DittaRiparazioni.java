@@ -27,6 +27,8 @@ public class DittaRiparazioni {
     }
     //si assume che la riparazione più importante abbia precedenza
     public void assign(Tecnico t){
+        if(dipendenti.get(dipendenti.indexOf(t)).getStatus()==Status.IN_VACANZA)
+            return;
         if(toDo.isEmpty())
             return;
         Riparazione r = toDo.poll();
@@ -43,6 +45,9 @@ public class DittaRiparazioni {
     }
     public boolean addTecnico(Tecnico t){
         try {
+            if(dipendenti.contains(t)){
+                return false;
+            }
             return dipendenti.add((Tecnico) t.clone());
         }catch (CloneNotSupportedException ex){
             //unused
