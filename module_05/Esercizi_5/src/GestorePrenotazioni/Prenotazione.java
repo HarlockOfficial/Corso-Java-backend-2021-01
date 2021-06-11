@@ -18,7 +18,7 @@ public abstract class Prenotazione {
         Prenotazione that = (Prenotazione) o;
         return codiceUnivoco.equals(that.codiceUnivoco);
     }
-
+    public abstract int getPostiRiservati();
     @Override
     public int hashCode() {
         return Objects.hash(codiceUnivoco);

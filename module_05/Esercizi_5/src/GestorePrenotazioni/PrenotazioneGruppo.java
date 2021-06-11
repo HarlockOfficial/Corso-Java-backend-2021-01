@@ -8,6 +8,7 @@ public class PrenotazioneGruppo extends Prenotazione{
         this.postiRiservati = postiRiservati;
     }
 
+    @Override
     public int getPostiRiservati() {
         return postiRiservati;
     }

@@ -2,8 +2,10 @@ package GestorePrenotazioni;
 
 public class MainClass {
     public static void main(String[] args) {
+        //modificato perchè uso nomi di classe diversi
         GestorePrenotazioni miniGestorePrenotazioni =
                 new GestorePrenotazioni(3, 5);
+        //---------------------------------------------------------
         Prenotazione p1 = new PrenotazioneSingola("12", Preferenza.ESTERNO);
         Prenotazione p2 = new PrenotazioneSingola("23", Preferenza.ESTERNO);
         Prenotazione p3 = new PrenotazioneSingola("34", Preferenza.INTERNO);
@@ -29,6 +31,10 @@ public class MainClass {
         System.out.println(prenotazioniEsterno == 3);
         Prenotazione p5 = new PrenotazioneGruppo("45", 2);
         miniGestorePrenotazioni.prenota(p5);
+        //modificato perchè non uso array base e non torno il puntatore effettivo, ma un clone
+        prenotazioniInternoArray = miniGestorePrenotazioni.prenotazioniAttualiInterno();
+        prenotazioniEsternoArray = miniGestorePrenotazioni.prenotazioniAttualiEsterno();
+        //------------------------------------------------------------------------------------
         prenotazioniInterno = 0;
         prenotazioniEsterno = 0;
         //contiamo e togliamo i null se presenti
@@ -45,11 +51,11 @@ public class MainClass {
         int postiTotali = 0;
         for (Prenotazione prenotazione : prenotazioniInternoArray)
             if (prenotazione != null) {
-                postiTotali += prenotazione.getnPosti();
+                postiTotali += prenotazione.getPostiRiservati();
             }
         for (Prenotazione prenotazione : prenotazioniEsternoArray)
             if (prenotazione != null) {
-                postiTotali += prenotazione.getnPosti();
+                postiTotali += prenotazione.getPostiRiservati();
             }
         System.out.println(postiTotali == 6);
         Prenotazione p6 = new PrenotazioneSingola("67", Preferenza.ESTERNO);

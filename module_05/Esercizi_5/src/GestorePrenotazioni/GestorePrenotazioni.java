@@ -40,11 +40,11 @@ public class GestorePrenotazioni {
             }
         }else if(p.getClass().equals(PrenotazioneGruppo.class)){
             int numPosti = ((PrenotazioneGruppo) p).getPostiRiservati();
-            if(postiInterniOccupati+numPosti<maxPostiInterni){
+            if(postiInterniOccupati+numPosti<=maxPostiInterni){
                 postiInterniOccupati+=numPosti;
                 return postiInterni.add(p);
             }
-            if(postiEsterniOccupati+numPosti<maxPostiEsterni){
+            if(postiEsterniOccupati+numPosti<=maxPostiEsterni){
                 postiEsterniOccupati+=numPosti;
                 return postiEsterni.add(p);
             }

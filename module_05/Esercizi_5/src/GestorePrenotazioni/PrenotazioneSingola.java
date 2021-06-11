@@ -11,6 +11,11 @@ public class PrenotazioneSingola extends Prenotazione{
         return pref;
     }
 
+    @Override
+    public int getPostiRiservati() {
+        return 1;
+    }
+
     public void setPref(Preferenza pref) {
         this.pref = pref;
     }
