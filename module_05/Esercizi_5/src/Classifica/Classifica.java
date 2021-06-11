@@ -11,11 +11,17 @@ public class Classifica {
         this.squadre = new ArrayList<>(Arrays.asList(squadre));
     }
     public Squadra[] getClassifica(){
-        Collections.sort(squadre);
+        squadre.sort(Collections.reverseOrder());
         return squadre.toArray(new Squadra[1]);
     }
     public Squadra getMigliorAttacco(){
-        squadre.sort(Comparator.comparingInt(o -> o.getGolFatti()));
+        squadre.sort((o1, o2) -> {
+            int comp = Integer.compare(o1.getGolFatti(), o2.getGolFatti());
+            if(comp == 0){
+                return o1.getNome().compareTo(o2.getNome());
+            }
+            return comp;
+        });
         return squadre.get(squadre.size()-1);
     }
     public Squadra getPeggiorDifesa(){
