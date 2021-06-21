@@ -1,7 +1,6 @@
 package TweetParser;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -9,26 +8,19 @@ import java.util.*;
 public class Parser {
     private final BufferedReader br;
     private final Map<String, Integer> map2;
+    private final SortedSet<String> set;
     private boolean finished;
-    private final String regexToRemoveFromInputLine;
 
-    public Parser(String csvName, String ignoreName) throws FileNotFoundException {
+    public Parser(String csvName, String ignoreName) throws IOException {
         finished = false;
         br = new BufferedReader(new FileReader(csvName));
         map2 = new HashMap<>();
+        set = new TreeSet<>();
         BufferedReader brTmp = new BufferedReader(new FileReader(ignoreName));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        try {
-            while ((line = brTmp.readLine()) != null) {
-                sb.append(line).append('|');
-            }
-        }catch(IOException ex){
-            //ignored
+        String tmp;
+        while((tmp = brTmp.readLine()) != null){
+            set.add(tmp);
         }
-        //regex to ignore dot, minus, quotes and links
-        //sb.append(".|-|\"|'|https?://(www.)?[a-zA-Z0-9@:%._\\+~#=]{1,256}.[a-zA-Z0-9()]{1,6}/?([a-zA-Z0-9()@:%_\\+.~#?&/=]*)");
-        regexToRemoveFromInputLine = sb.substring(0, sb.length()-1);
     }
 
     public void parse() throws AlreadyFinishedException, IOException {
@@ -39,10 +31,13 @@ public class Parser {
         br.readLine();
         while((line = br.readLine())!=null) {
             line = line.split(",")[2];
-            line = line.replaceAll(regexToRemoveFromInputLine, "");
-            System.out.println(line);
+            line = line.replaceAll("[\\d]+[,https?\\://[a-zA-Z0-9\\-\\.]+\\.[a-zA-Z]{2,3}(/\\S)?]+[\\d]", "");
+            //System.out.println(line);
             for (String s : line.split(" ")) {
-                System.out.println(s);
+                s = s.trim().toLowerCase();
+                if(s.length()<=1 || set.contains(s) || checkWord(s)){
+                    continue;
+                }
                 if (map2.containsKey(s)) {
                     map2.put(s, map2.get(s) + 1);
                 } else {
@@ -53,20 +48,27 @@ public class Parser {
         finished = true;
     }
 
+    private boolean checkWord(String s) {
+        for(String elem: set){
+            if(s.contains(elem)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public List<String> getResult() throws NotYetFinishedException{
         if(!finished){
             throw new NotYetFinishedException();
         }
+        System.out.println(map2);
         List<String> out = new ArrayList<>(map2.keySet());
-        Collections.sort(out, new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                int cmp = Integer.compare(map2.get(o2), map2.get(o1));
-                if(cmp==0){
-                    cmp = o1.compareTo(o2);
-                }
-                return cmp;
+        out.sort((o1, o2) -> {
+            int cmp = Integer.compare(map2.get(o2), map2.get(o1));
+            if (cmp == 0) {
+                cmp = o1.compareTo(o2);
             }
+            return cmp;
         });
         return out;
     }
