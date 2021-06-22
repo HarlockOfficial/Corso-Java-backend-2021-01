@@ -8,14 +8,14 @@ import java.util.*;
 public class Parser {
     private final BufferedReader br;
     private final Map<String, Integer> map2;
-    private final SortedSet<String> set;
+    private final Set<String> set;
     private boolean finished;
 
     public Parser(String csvName, String ignoreName) throws IOException {
         finished = false;
         br = new BufferedReader(new FileReader(csvName));
         map2 = new HashMap<>();
-        set = new TreeSet<>();
+        set = new HashSet<>();
         BufferedReader brTmp = new BufferedReader(new FileReader(ignoreName));
         String tmp;
         while((tmp = brTmp.readLine()) != null){
@@ -61,7 +61,6 @@ public class Parser {
         if(!finished){
             throw new NotYetFinishedException();
         }
-        System.out.println(map2);
         List<String> out = new ArrayList<>(map2.keySet());
         out.sort((o1, o2) -> {
             int cmp = Integer.compare(map2.get(o2), map2.get(o1));

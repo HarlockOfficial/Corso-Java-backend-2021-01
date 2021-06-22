@@ -9,6 +9,6 @@ public class MainClass {
         if(!p.isFinished()){
             System.out.println("Weird!!!");
         }
-        p.getResult();
+        System.out.println(p.getResult());
     }
 }
