@@ -35,7 +35,7 @@ public class Parser {
             //System.out.println(line);
             for (String s : line.split(" ")) {
                 s = s.trim().toLowerCase();
-                if(s.length()<=1 || set.contains(s) || checkWord(s)){
+                if(s.length()<=1 || set.contains(s) || false/*checkWord(s)*/){
                     continue;
                 }
                 if (map2.containsKey(s)) {

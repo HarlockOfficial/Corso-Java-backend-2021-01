@@ -46,6 +46,7 @@ public class Tinder {
         Map<Utente, Integer> matches = new HashMap<>();
         Set<GestoreInteressi.Interesse> interessiUtente = new HashSet<>(utente.getInteressi());
         for (Utente u : utenti) {
+            if(utente.equals(u)) continue;
             Set<GestoreInteressi.Interesse> interessiOther = new HashSet<>(utente.getInteressi());
             interessiOther.retainAll(interessiUtente);
             if (interessiOther.size() > 0) {
