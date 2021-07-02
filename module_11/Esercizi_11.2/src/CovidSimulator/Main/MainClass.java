@@ -18,13 +18,7 @@ public class MainClass {
         FileWriterManager output = new FileWriterManager("files/output.txt");
         Semaphore semaphore = new Semaphore(0);
         pool.submit(new ParseFile(readerNord, output, semaphore));
-        pool.submit(new ParseFile(readerNord, output, semaphore));
-        pool.submit(new ParseFile(readerNord, output, semaphore));
         pool.submit(new ParseFile(readerCentro, output, semaphore));
-        pool.submit(new ParseFile(readerCentro, output, semaphore));
-        pool.submit(new ParseFile(readerCentro, output, semaphore));
-        pool.submit(new ParseFile(readerSud, output, semaphore));
-        pool.submit(new ParseFile(readerSud, output, semaphore));
         pool.submit(new ParseFile(readerSud, output, semaphore));
         semaphore.acquire(9);
         readerNord.close();

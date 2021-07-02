@@ -18,8 +18,8 @@ public class MainClass {
                     FileReaderManager manager = new FileReaderManager(entry.getAbsolutePath());
                     Book book = new Book();
                     pool.submit(new BookParser(book, manager));
-                    pool.submit(new BookParser(book, manager));
-                    pool.submit(new BookParser(book, manager));
+                    //pool.submit(new BookParser(book, manager));
+                    //pool.submit(new BookParser(book, manager));
                     r.addBook(book);
                 }catch(IOException ex){
                     //ignored
@@ -27,9 +27,14 @@ public class MainClass {
             }
         }
         while(!pool.isTerminated()) {
-            System.out.println("Current Rank: " + r.getRank());
+            for (Book book : r.getBooks()) {
+                System.out.println("Current Rank: " + r.getRank(book));
+            }
             Thread.yield();
         }
-        System.out.println("Final Rank: " + r.getRank());
+
+        for (Book book : r.getBooks()) {
+            System.out.println("Final Rank: " + r.getRank(book));
+        }
     }
 }

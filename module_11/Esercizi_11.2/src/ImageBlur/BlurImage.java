@@ -44,15 +44,17 @@ public class BlurImage implements Runnable{
 
     private Color getAvgSurrounding(int x, int y) {
         int sum = 0;
+        int surroundingRadius = 0;
         for(int i = 0; i<blurRadius; ++i){
             for(int j = 0; j<blurRadius; ++j){
                 int tmpI = i+x-blurRadius/2;
                 int tmpJ = j+y-blurRadius/2;
                 if(tmpI>=0 && tmpJ>=0 && tmpI<input.getHeight() && tmpJ<input.getWidth()){
                     sum+=input.getRGB(tmpI, tmpJ);
+                    ++surroundingRadius;
                 }
             }
         }
-        return new Color(sum/(blurRadius*blurRadius));
+        return new Color(sum/(surroundingRadius));
     }
 }
